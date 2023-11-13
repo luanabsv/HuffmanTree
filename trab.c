@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <conio2.h>
+#include <ctype.h>
+#include <stdlib.h>
+
 struct tpBin {
     int codPalavra;
     char palavra[20];
@@ -72,16 +75,28 @@ int palavraExiste(FILE *ptrArq, char palavra[20]) {
     return 0;
 }
 
-int main(void) {
-	TpLista* lista = NULL;
-	FILE *ptrArqPrincipal = fopen("glimpse.txt", "r+");
-	FILE *ptrArq3 = fopen("codigos.dat", "w+");
-	fclose(ptrArq3);
-	int codPalavra = retornaMaiorCod() + 1, qtde;
+
+void removeEspecial(char original[]) {
+	char resultado[30];
+    int i, j = 0;
+    for (i = 0; i < strlen(original); i++) {
+        if (isalpha(original[i])) {
+            resultado[j++] = original[i];
+        }
+    }
+    resultado[j] = '\0';
+    strcpy(original, resultado);
+}
+
+void criaGeral(TpLista **lista, FILE* ptrArqPrincipal) {
+	int codPalavra = 0, qtde;
     TpBin Reg;
     char stringPtPrincipal[20], stringPtSecundario[20];
     fscanf(ptrArqPrincipal, "%s ", stringPtPrincipal);
     while (!feof(ptrArqPrincipal)) {
+    	strlwr(stringPtPrincipal);
+    	removeEspecial(stringPtPrincipal);
+    	printf("%s\n", stringPtPrincipal);
     	qtde = 0;
         FILE *ptrArq = fopen("codigos.dat", "rb+");
         if (!palavraExiste(ptrArq, stringPtPrincipal)) {
@@ -99,13 +114,13 @@ int main(void) {
             Reg.qtde = qtde;
             fwrite(&Reg, sizeof(TpBin), 1, ptrArq);
             
-            TpLista* aux = lista;
-		    TpLista* novaCaixa = criaCaixa(codPalavra, qtde, stringPtPrincipal);
-		    if (lista == NULL || qtde >= lista->qtde) {
-                novaCaixa->prox = lista;
-                lista = novaCaixa;
+            TpLista *aux = *lista;
+		    TpLista *novaCaixa = criaCaixa(codPalavra, qtde, stringPtPrincipal);
+		    if (*lista == NULL || qtde >= (*lista)->qtde) {
+                novaCaixa->prox = *lista;
+                *lista = novaCaixa;
             } else {
-                TpLista* atual = lista;
+                TpLista* atual = *lista;
                 while (atual->prox != NULL && qtde < atual->prox->qtde) {
                     atual = atual->prox;
                 }
@@ -118,11 +133,24 @@ int main(void) {
         fclose(ptrArq);
         fscanf(ptrArqPrincipal, "%s ", stringPtPrincipal);
     }
-    FILE *ptrArq = fopen("codigos.dat", "rb+");
+}
+
+int main(void) {
+	TpLista* lista = NULL;
+	FILE *ptrArqPrincipal = fopen("glimpse.txt", "r+");
+	FILE *ptrArq3 = fopen("codigos.dat", "w+");
+	fclose(ptrArq3);
+	
+	criaGeral(&lista, ptrArqPrincipal);
+	fclose(ptrArqPrincipal);
+	;
     exibeLista(lista);
     printf("\n");
+    
+    FILE *ptrArq = fopen("codigos.dat", "rb+");
     exibeArq(ptrArq);
-    fclose(ptrArqPrincipal);
     fclose(ptrArq);
+    
+    return 0;
 }
 
