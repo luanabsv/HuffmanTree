@@ -250,6 +250,7 @@ void geraHuffman(Tree *raiz) {
 int main() {
 	TpLista *inicio = NULL;
 	Tree *raiz = NULL;
+	char fraseCodificar = "Chico se me deres nota"
 
 	montaLista(&inicio);
 	//exibeLista(inicio);
