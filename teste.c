@@ -42,6 +42,19 @@ TpLista* criaCaixaLista(Tree *folha) {
     return caixaLista;
 }
 
+void insereHuffman(char huffman[30], int simbolo) {
+	FILE *ptrArq = fopen("codigos.dat", "rb+");
+    TpBin reg;
+    fread(&reg, sizeof(TpBin), 1, ptrArq);
+    while (!feof(ptrArq) && reg.simbolo != simbolo) {
+        fread(&reg, sizeof(TpBin), 1, ptrArq);
+    }
+    strcpy(reg.huffman, huffman);
+    fseek(ptrArq, ftell(ptrArq)-sizeof(TpBin), 0);
+    fwrite(&reg, sizeof(TpBin), 1, ptrArq);
+    fclose(ptrArq);
+}
+
 char palavraExiste(FILE *ptrArq, char palavra[30]) {
     TpBin reg;
     rewind(ptrArq);
@@ -68,7 +81,7 @@ int contFreq(char word[30]) {
 		fscanf(ptrBusca, "%s ", compara);
 	}
 	fclose(ptrBusca);
-	printf("%d\n", qtde);
+//	printf("%d\n", qtde);
 	return qtde;
 }
 
@@ -205,34 +218,33 @@ void exibeArq() {
 	
 	fread(&reg, sizeof(TpBin), 1, ptr);
 	while(!feof(ptr)) {
-		printf("%s \t %d \t %d \n", reg.palavra, reg.simbolo, reg.freq);
+		printf("%s \t %d \t %d \t %s\n", reg.palavra, reg.simbolo, reg.freq, reg.huffman);
 			fread(&reg, sizeof(TpBin), 1, ptr);
 	}
 	fclose(ptr);
 }
 
-void posOrdem(Tree *raiz, char huffman[]) {
+void posOrdem(Tree *raiz, char huffman[30]) {
     if (raiz != NULL) {
-        posOrdem(raiz->esq);    // Percorre a subárvore esquerda
-        posOrdem(raiz->dir);     // Percorre a subárvore direita
+    	int len = strlen(huffman);
+    	huffman[len] = '1';
+    	huffman[len + 1] = '\0';
+        posOrdem(raiz->esq, huffman);    // Percorre a subárvore esquerda
+        huffman[len] = '0';
+    	huffman[len + 1] = '\0';
+        posOrdem(raiz->dir, huffman);     // Percorre a subárvore direita
     	if(raiz->simbolo != -1) {
-			printf("%d - %d \n", raiz->simbolo, raiz->freq);    		
+			insereHuffman(huffman, raiz->simbolo);
 		}
 	}
-   
 }
 
 void geraHuffman(Tree *raiz) {
 	TpBin reg;
 	FILE *ptr = fopen("codigos.dat", "rb+");
-	
-	posOrdem(raiz
-	
-	fread(&reg, sizeof(TpBin), 1, ptr);
-	while(!feof(ptr)) {
-	//	printf("%s \t %d \t %d \n", reg.palavra, reg.simbolo, reg.freq);
-		fread(&reg, sizeof(TpBin), 1, ptr);
-	}
+	char huffman[30];
+	huffman[0] = '\0';
+	posOrdem(raiz, huffman);
 }
 
 int main() {
@@ -243,8 +255,8 @@ int main() {
 	//exibeLista(inicio);
 	montaArv(&inicio);
 	raiz = montaArv(&inicio);
-	//exibeArq();
+	geraHuffman(raiz);
+	exibeArq();
 	//exibe(raiz);
-	geraHuffman(raiz
 	return 0;
 }
