@@ -46,6 +46,7 @@ char palavraExiste(FILE *ptrArq, char palavra[30]) {
     TpBin reg;
     rewind(ptrArq);
     while (fread(&reg, sizeof(TpBin), 1, ptrArq) == 1) {
+    		limparCaracteresEspeciais(reg.palavra);
         if (stricmp(reg.palavra, palavra) == 0) {
             return 1;
         }
@@ -210,16 +211,40 @@ void exibeArq() {
 	fclose(ptr);
 }
 
+void posOrdem(Tree *raiz, char huffman[]) {
+    if (raiz != NULL) {
+        posOrdem(raiz->esq);    // Percorre a subárvore esquerda
+        posOrdem(raiz->dir);     // Percorre a subárvore direita
+    	if(raiz->simbolo != -1) {
+			printf("%d - %d \n", raiz->simbolo, raiz->freq);    		
+		}
+	}
+   
+}
+
+void geraHuffman(Tree *raiz) {
+	TpBin reg;
+	FILE *ptr = fopen("codigos.dat", "rb+");
+	
+	posOrdem(raiz
+	
+	fread(&reg, sizeof(TpBin), 1, ptr);
+	while(!feof(ptr)) {
+	//	printf("%s \t %d \t %d \n", reg.palavra, reg.simbolo, reg.freq);
+		fread(&reg, sizeof(TpBin), 1, ptr);
+	}
+}
+
 int main() {
 	TpLista *inicio = NULL;
 	Tree *raiz = NULL;
 
 	montaLista(&inicio);
-	exibeLista(inicio);
+	//exibeLista(inicio);
 	montaArv(&inicio);
 	raiz = montaArv(&inicio);
-	exibeArq();
-	exibe(raiz);
-	//printf("%d", raiz->esq);
+	//exibeArq();
+	//exibe(raiz);
+	geraHuffman(raiz
 	return 0;
 }
