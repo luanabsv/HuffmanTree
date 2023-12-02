@@ -11,14 +11,14 @@ struct tpBin {
 };
 typedef struct tpBin TpBin;
 
-struct tpLista {
+/*struct tpLista {
     struct tpLista *prox;
     int qtde;
     int codPalavra;
     char palavra[20];
 };
-typedef struct tpLista TpLista;
-
+typedef struct tpLista TpLista;*/
+/*
 TpLista* criaCaixa(int codPalavra, int qtde, char palavra[20]) {
     TpLista* novaCaixa = (TpLista*)malloc(sizeof(TpLista));
 
@@ -29,7 +29,7 @@ TpLista* criaCaixa(int codPalavra, int qtde, char palavra[20]) {
    	
     return novaCaixa;
 }
-
+*/
 void exibeArq(FILE *ptrArq) {
     TpBin Reg;
     fread(&Reg, sizeof(TpBin), 1, ptrArq);
