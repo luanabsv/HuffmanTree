@@ -3,6 +3,7 @@
 #include <conio2.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include<windows.h>
 
 struct tpTree {
 	int freq, simbolo;
@@ -21,6 +22,15 @@ struct tpBin {
     char palavra[20], huffman[30];
 };
 typedef struct tpBin TpBin;
+
+void telacheia() {
+	keybd_event ( VK_MENU, 0x38, 0, 0 );
+	keybd_event ( VK_SPACE, 0x39, 0, 0 );
+	keybd_event(0x58,0,0,0);
+	keybd_event ( VK_MENU, 0x38, KEYEVENTF_KEYUP, 0 );
+	keybd_event ( VK_SPACE, 0x39, KEYEVENTF_KEYUP, 0 );
+	keybd_event(0x58,0,KEYEVENTF_KEYUP,0);
+}
 
 Tree *novaCaixaTree(int codPalavra, int freq, Tree *esq, Tree *dir) {
 	Tree* novaCaixa = (Tree*)malloc(sizeof(Tree));
@@ -71,7 +81,7 @@ char palavraExiste(FILE *ptrArq, char palavra[30]) {
 int contFreq(char word[30]) {
 	char compara[30];
 	int qtde = 0;
-	FILE *ptrBusca = fopen("glimpse.txt", "r+");
+	FILE *ptrBusca = fopen("textocompleto.txt", "r+");
 	
 	fscanf(ptrBusca, "%s ", compara);
 	while(!feof(ptrBusca)) {
@@ -122,7 +132,7 @@ void montaLista(TpLista **inicio) {
 	TpLista *palavraAtual;
 	Tree *caixaArv;
 	int codPalavra = 0;
-	FILE *ptrArq = fopen("glimpse.txt", "r+");
+	FILE *ptrArq = fopen("textocompleto.txt", "r+");
 	FILE *codDat = fopen("codigos.dat", "wb+");
 
 	fscanf(ptrArq, "%s ", word);
@@ -199,18 +209,18 @@ void exibeLista(TpLista *pLista) {
 	}
 }
 
-void exibe(Tree *raiz){
-	static int n=-1,i;
-	if(raiz!=NULL)
-	{
-		n++;
-		exibe(raiz->dir);
-		for(i=0;i<5*n;i++)
-			printf(" ");
-		printf("(%d, %d)\n",raiz->simbolo,raiz->freq);
-		exibe(raiz->esq);
-		n--;	
-	}			
+void exibe(Tree* raiz, int espaco) {
+	if(raiz) {
+		int i;
+		espaco += 5;
+	    exibe(raiz->dir, espaco);
+	    printf("\n");
+	    for (i = 5; i < espaco; i++) {
+	        printf(" ");
+	    }
+	    printf("(%d, %d)\n", raiz->simbolo, raiz->freq);
+	    exibe(raiz->esq, espaco);	
+	}
 }
 
 void exibeArq() {
@@ -246,6 +256,7 @@ void codificarFrase() {
 	FILE* ptrArqCod = fopen("frasecod.txt", "w+");
 	TpBin reg;
 	char palavra[30];
+	printf("Frase codificada eh uma surpresa, rode o programa 2!\n");
 	while(!feof(ptrArq)) {
 		fscanf(ptrArq, "%s ", &palavra);
 		rewind(ptrArqBin);
@@ -259,18 +270,24 @@ void codificarFrase() {
 }
 
 int main() {
+	telacheia();
+	Sleep(1000);
 	TpLista *inicio = NULL;
 	Tree *raiz = NULL;
 	montaLista(&inicio);
-	//exibeLista(inicio);
 	montaArv(&inicio);
 	raiz = montaArv(&inicio);
 	char huffman[30];
 	huffman[0] = '\0';
 	geraHuffman(raiz, huffman);
-	codificarFrase();
-	printf("\n");
+	printf("Lista: \n");
 	exibeArq();
-	//exibe(raiz);
+	printf("\n\nEnter para a próxima parte\n\n");
+	getch();
+	printf("\n\nArvore: \n");
+	exibe(raiz, 0);
+	printf("\n\nEnter para a próxima parte\n\n");
+	getch();
+	codificarFrase();
 	return 0;
 }
