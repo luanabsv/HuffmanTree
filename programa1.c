@@ -42,6 +42,7 @@ TpLista* criaCaixaLista(Tree *folha) {
     return caixaLista;
 }
 
+
 void insereHuffman(char huffman[30], int simbolo) {
 	FILE *ptrArq = fopen("codigos.dat", "rb+");
     TpBin reg;
@@ -224,39 +225,51 @@ void exibeArq() {
 	fclose(ptr);
 }
 
-void posOrdem(Tree *raiz, char huffman[30]) {
+void geraHuffman(Tree *raiz, char huffman[30]) {
     if (raiz != NULL) {
     	int len = strlen(huffman);
     	huffman[len] = '1';
     	huffman[len + 1] = '\0';
-        posOrdem(raiz->esq, huffman);    // Percorre a subárvore esquerda
+        geraHuffman(raiz->esq, huffman);    // Percorre a subárvore esquerda
         huffman[len] = '0';
     	huffman[len + 1] = '\0';
-        posOrdem(raiz->dir, huffman);     // Percorre a subárvore direita
+        geraHuffman(raiz->dir, huffman);     // Percorre a subárvore direita
     	if(raiz->simbolo != -1) {
 			insereHuffman(huffman, raiz->simbolo);
 		}
 	}
 }
 
-void geraHuffman(Tree *raiz) {
+void codificarFrase() {
+	FILE* ptrArq = fopen("frasedecod.txt", "r");
+	FILE* ptrArqBin = fopen("codigos.dat", "rb");
+	FILE* ptrArqCod = fopen("frasecod.txt", "w+");
 	TpBin reg;
-	FILE *ptr = fopen("codigos.dat", "rb+");
-	char huffman[30];
-	huffman[0] = '\0';
-	posOrdem(raiz, huffman);
+	char palavra[30];
+	while(!feof(ptrArq)) {
+		fscanf(ptrArq, "%s ", &palavra);
+		rewind(ptrArqBin);
+		fread(&reg, sizeof(TpBin), 1, ptrArqBin);
+		while(!feof(ptrArqBin) && stricmp(reg.palavra, palavra) != 0) {
+			fread(&reg, sizeof(TpBin), 1, ptrArqBin);
+		}
+		fseek(ptrArqBin, ftell(ptrArqBin)-sizeof(TpBin), 0);
+		fprintf(ptrArqCod, "%s", reg.huffman);
+	}
 }
 
 int main() {
 	TpLista *inicio = NULL;
 	Tree *raiz = NULL;
-	char fraseCodificar = "Chico se me deres nota"
-
 	montaLista(&inicio);
 	//exibeLista(inicio);
 	montaArv(&inicio);
 	raiz = montaArv(&inicio);
-	geraHuffman(raiz);
+	char huffman[30];
+	huffman[0] = '\0';
+	geraHuffman(raiz, huffman);
+	codificarFrase();
+	printf("\n");
 	exibeArq();
 	//exibe(raiz);
 	return 0;
